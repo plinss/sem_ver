@@ -18,8 +18,7 @@ Test if string is a valid SemVer.
 Compare two SemVer strings.
 Will raise `ValueError` if either string is not a valid SemVer.
 
-#### SemVer(version: str = None, major: int = 0, minor: int = 0, patch: int = 0,
-            prerelease: Union[str, Sequence[Union[int, str]]] = '', build: Union[str, Sequence[str]] = '')
+#### SemVer(version: str = None, major: int = 0, minor: int = 0, patch: int = 0, prerelease: Union[str, Sequence[Union[int, str]]] = '', build: Union[str, Sequence[str]] = '')
 
 Constructor.
 Will raise `ValueError` if the passed version string does not match the proper format.
