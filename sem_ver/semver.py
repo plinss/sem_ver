@@ -175,8 +175,11 @@ class SemVer:
                 + (('+' + cast(str, self.build)) if (self.builds) else ''))
 
     def __eq__(self, other: Any) -> bool:
-        """Compare equality."""
-        return (str(self) == str(other))
+        """Compare equality, does not compare builds."""
+        if (not isinstance(other, SemVer)):
+            other = SemVer(str(other))
+        return ((other.major == self.major) and (other.minor == self.minor)
+                and (other.patch == self.patch) and (other.prereleases == self.prereleases))
 
     def _prerelease_lt(self, other: 'SemVer') -> bool:
         def compare_part(a: Union[int, str], b: Union[int, str]) -> int:
@@ -196,10 +199,8 @@ class SemVer:
 
     def __lt__(self, other: Any) -> bool:
         """Compare to other version."""
-        if (isinstance(other, str)):
-            other = SemVer(other)
         if (not isinstance(other, SemVer)):
-            raise TypeError('unorderable types: SemVer, {other}'.format(other=type(other).__name__))
+            other = SemVer(str(other))
         if (self.major < other.major):
             return True
         if (self.major == other.major):

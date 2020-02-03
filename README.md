@@ -4,6 +4,10 @@ This package contains a parser for Semantic Version labels complete with type an
 
 In addition to parsing version labels they may be compared via standard comparison operators 
 and modified directly.
+Note that comparison operators, including equality, do not consider build information.
+To test for equality including build information, convert to, and compare strings.
+SemVer objects may be directly compared to strings, or other objects that can be converted to strings,
+a `ValueError` will be raised if the other object is not a valid SemVer.
 
 See https://semver.org for details.
 
