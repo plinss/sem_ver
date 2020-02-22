@@ -28,6 +28,15 @@ def _check(test: str, result: Any, expected: Any) -> Tuple[int, int]:
 
 
 def _compare(test: str, ver: SemVer, result: Result) -> bool:
+    if (result is None):
+        if (ver is None):
+            _pass(test, result)
+            return True
+        _fail(test, ver, result)
+        return False
+    if (ver is None):
+        _fail(test, ver, result)
+        return False
     if ((ver.major == result.major)
             and (ver.minor == result.minor)
             and (ver.patch == result.patch)
@@ -74,9 +83,26 @@ compare_tests = (
     ('1.0.0-alpha', '1.0.0-alpha.alpha', True),
 )
 
+force_tests = (
+    ('Version', None),
+    ('Ver0.0.0', Result(0, 0, 0, None, None)),
+    ('V1', Result(1, 0, 0, None, None)),
+    ('1', Result(1, 0, 0, None, None)),
+    ('1.0', Result(1, 0, 0, None, None)),
+    ('1.00.00', Result(1, 0, 0, None, None)),
+    ('1.01.01', Result(1, 1, 1, None, None)),
+    ('1.0.0pre', Result(1, 0, 0, 'pre', None)),
+    ('1.0.0-', Result(1, 0, 0, None, None)),
+    ('1.0.0-+', Result(1, 0, 0, None, None)),
+    ('1.0.0-+build', Result(1, 0, 0, None, 'build')),
+    ('1.0.0.0', Result(1, 0, 0, '0', None)),
+    ('1.0.0.0.0', Result(1, 0, 0, '0.0', None)),
+)
+
 
 def _run_tests() -> Tuple[int, int]:
     pass_count, fail_count = 0, 0
+    print('Strict parsing tests')
     for test, result in parse_tests:
         try:
             ver = SemVer(test)
@@ -102,6 +128,7 @@ def _run_tests() -> Tuple[int, int]:
                 _pass(test, None)
                 pass_count += 1
 
+    print('Comparison tests')
     for a, b, compare_result in compare_tests:
         try:
             if ((SemVer(a) < SemVer(b)) == compare_result):
@@ -112,6 +139,20 @@ def _run_tests() -> Tuple[int, int]:
                 fail_count += 1
         except Exception as error:
             _fail('Parse {a} or {b}'.format(a=a, b=b), error, '{a} {b}'.format(a=a, b=b))
+            fail_count += 1
+
+    print('Relaxed parsing tests')
+    for test, result in force_tests:
+        try:
+            ver = SemVer.force(test)
+            if (_compare(test, ver, result)):
+                pass_count += 1
+            else:
+                fail_count += 1
+
+        except Exception as error:
+            _fail('Exception during processing \'{test}\''.format(test=test), error, result)
+            fail_count += 1
 
     return (pass_count, fail_count)
 

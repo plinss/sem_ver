@@ -28,6 +28,27 @@ SEMVER_REGEX = re.compile(r'''
     $''', re.VERBOSE)
 PRERELEASE_REGEX = re.compile(r'^(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*$')
 BUILD_REGEX = re.compile(r'^(?:[0-9a-zA-Z-]+)(?:\.[0-9a-zA-Z-]+)*$')
+RELAXED_REGEX = re.compile(r'''
+    ^[a-zA-Z]*
+    (?P<major>\d+)
+    (?:\.
+        (?P<minor>\d+)
+        (?:\.
+            (?P<patch>\d+)
+        )?
+    )?
+    (?:-?
+        (?P<prerelease>
+            (?:[0-9a-zA-Z-\.]*)
+        )?
+    )?
+    (?:\+
+        (?P<build>
+            (?:[0-9a-zA-Z-]+)
+            (?:\.[0-9a-zA-Z-]+)*
+        )?
+    )?
+    $''', re.VERBOSE)
 
 
 @total_ordering
@@ -61,6 +82,24 @@ class SemVer:
         if (a == b):
             return 0
         return (-1 if (a < b) else 1)
+
+    @classmethod
+    def force(cls, version: str) -> Optional['SemVer']:
+        """Attempt for create a SemVer with relaxed parsing rules."""
+        match = RELAXED_REGEX.match(version)
+        if (match is None):
+            return None
+        parts = match.groupdict()
+        semver = cls(major=int(parts['major'] or 0), minor=int(parts['minor'] or 0), patch=int(parts['patch'] or 0))
+        try:
+            semver.prerelease = parts['prerelease'].strip('.') if (parts['prerelease']) else None
+        except ValueError:
+            pass
+        try:
+            semver.build = parts['build'].strip('.') if (parts['build']) else None
+        except ValueError:
+            pass
+        return semver
 
     def __init__(self, version: str = None,
                  major: int = 0, minor: int = 0, patch: int = 0,

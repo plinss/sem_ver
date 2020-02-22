@@ -22,6 +22,11 @@ Test if string is a valid SemVer.
 Compare two SemVer strings.
 Will raise `ValueError` if either string is not a valid SemVer.
 
+#### sem_ver.force(version: str) -> Optional[SemVer]
+
+Use relaxed parsing rules to attempt to create a SemVer.
+Returns `None` if no version info found.
+
 #### SemVer(version: str = None, major: int = 0, minor: int = 0, patch: int = 0, prerelease: Union[str, Sequence[Union[int, str]]] = '', build: Union[str, Sequence[str]] = '')
 
 Constructor.
