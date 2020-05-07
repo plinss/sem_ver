@@ -85,7 +85,7 @@ class SemVer:
 
     @classmethod
     def force(cls, version: str) -> Optional['SemVer']:
-        """Attempt for create a SemVer with relaxed parsing rules."""
+        """Attempt to create a SemVer with relaxed parsing rules."""
         match = RELAXED_REGEX.match(version)
         if (match is None):
             return None
@@ -213,6 +213,13 @@ class SemVer:
                 + (('-' + cast(str, self.prerelease)) if (self.prereleases) else '')
                 + (('+' + cast(str, self.build)) if (self.builds) else ''))
 
+    def __repr__(self) -> str:
+        """Debug dump."""
+        return 'SemVer - major: {major} minor: {minor} patch: {patch}{pre}{build}'.format(
+            major=self.major, minor=self.minor, patch=self.patch,
+            pre=' prereleases: {pre}'.format(pre=repr(self.prereleases)) if (self.prereleases) else '',
+            build=' builds: {build}'.format(build=repr(self.builds)) if (self.builds) else '')
+
     def __eq__(self, other: Any) -> bool:
         """Compare equality, does not compare builds."""
         if (not isinstance(other, SemVer)):
@@ -238,8 +245,10 @@ class SemVer:
 
     def __lt__(self, other: Any) -> bool:
         """Compare to other version."""
+        if (isinstance(other, str)):
+            other = SemVer(other)
         if (not isinstance(other, SemVer)):
-            other = SemVer(str(other))
+            raise TypeError('unorderable types: SemVer, {other}'.format(other=type(other).__name__))
         if (self.major < other.major):
             return True
         if (self.major == other.major):

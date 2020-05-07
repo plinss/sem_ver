@@ -2,7 +2,7 @@
 """Run comprehensive test suite."""
 
 import collections
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 from sem_ver import SemVer
 
@@ -27,7 +27,7 @@ def _check(test: str, result: Any, expected: Any) -> Tuple[int, int]:
     return (0, 1)
 
 
-def _compare(test: str, ver: SemVer, result: Result) -> bool:
+def _compare(test: str, ver: Optional[SemVer], result: Optional[Result]) -> bool:
     if (result is None):
         if (ver is None):
             _pass(test, result)
@@ -144,8 +144,8 @@ def _run_tests() -> Tuple[int, int]:
     print('Relaxed parsing tests')
     for test, result in force_tests:
         try:
-            ver = SemVer.force(test)
-            if (_compare(test, ver, result)):
+            force_ver = SemVer.force(test)
+            if (_compare(test, force_ver, result)):
                 pass_count += 1
             else:
                 fail_count += 1
